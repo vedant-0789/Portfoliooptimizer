@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  TrendingUp, Portfolio, BarChart3, Shield, 
-  Brain, AlertCircle, DollarSign, Activity 
+import {
+  TrendingUp, Briefcase, BarChart3, Shield,
+  Brain, AlertCircle, DollarSign, Activity
 } from 'lucide-react'
 import PortfolioOverview from '@/components/dashboard/PortfolioOverview'
 import RiskMetrics from '@/components/dashboard/RiskMetrics'
@@ -25,7 +25,9 @@ export default function Dashboard() {
       return
     }
     // Fetch user data
-    // setUser(userData)
+    // In a real app, we would fetch user profile here.
+    // For now, we decode token or just use mock data if needed.
+    setUser({ name: 'User' })
   }, [router])
 
   return (
@@ -44,7 +46,7 @@ export default function Dashboard() {
               <Link href="/news" className="text-gray-600 hover:text-gray-900">News</Link>
               <Link href="/analysis" className="text-gray-600 hover:text-gray-900">Analysis</Link>
               <Link href="/security" className="text-gray-600 hover:text-gray-900">Security</Link>
-              <button 
+              <button
                 onClick={() => {
                   localStorage.removeItem('token')
                   router.push('/login')
@@ -83,7 +85,7 @@ export default function Dashboard() {
             positive
           />
           <StatCard
-            icon={<Portfolio className="h-6 w-6" />}
+            icon={<Briefcase className="h-6 w-6" />}
             title="Holdings"
             value="12"
             change="3 new"

@@ -22,7 +22,33 @@ ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY", "")
 async def fetch_news_from_newsapi(query: str, limit: int = 20) -> List[Dict]:
     """Fetch news from NewsAPI"""
     if not NEWS_API_KEY:
-        return []
+        # Return MOCK DATA for demonstration
+        return [
+            {
+                "title": f"Market rally continues as {query} shows strength",
+                "description": "Investors are optimistic about the latest economic indicators.",
+                "url": "https://example.com/news/1",
+                "publishedAt": datetime.now().isoformat(),
+                "source": {"name": "Mock Financial News"},
+                "sentiment_analysis": {"polarity": 0.5, "sentiment": "positive"}
+            },
+            {
+                "title": f"Analysts predict volatility in {query} sector",
+                "description": "New regulations may impact short-term performance.",
+                "url": "https://example.com/news/2",
+                "publishedAt": (datetime.now() - timedelta(hours=2)).isoformat(),
+                "source": {"name": "Mock Market Watch"},
+                "sentiment_analysis": {"polarity": -0.2, "sentiment": "negative"}
+            },
+            {
+                "title": "Global markets update: Tech stocks lead gains",
+                "description": "Technology sector continues to outperform broader market indices.",
+                "url": "https://example.com/news/3",
+                "publishedAt": (datetime.now() - timedelta(hours=4)).isoformat(),
+                "source": {"name": "Mock Tech Daily"},
+                "sentiment_analysis": {"polarity": 0.8, "sentiment": "positive"}
+            }
+        ]
     
     cache_key = f"news:{query}:{limit}"
     

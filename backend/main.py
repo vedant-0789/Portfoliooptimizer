@@ -35,11 +35,11 @@ security_scheme = HTTPBearer()
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     # Startup
-    print("🚀 Starting ALGORHYTHM Portfolio Optimizer...")
+    print("Starting ALGORHYTHM Portfolio Optimizer...")
     await redis_client.connect()
     yield
     # Shutdown
-    print("👋 Shutting down...")
+    print("Shutting down...")
     await redis_client.disconnect()
 
 
@@ -58,6 +58,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Debug Exception Handler
+import traceback
+from datetime import datetime
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    error_msg = f"Global Exception: {str(exc)}\n{traceback.format_exc()}"
+    print(error_msg)
+    with open("error.log", "a") as f:
+        f.write(f"\n[{datetime.now()}] {error_msg}\n")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc)},
+    )
 
 # Include routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])

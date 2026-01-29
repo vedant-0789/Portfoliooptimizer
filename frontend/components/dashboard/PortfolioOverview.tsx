@@ -25,7 +25,7 @@ export default function PortfolioOverview() {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-xl font-semibold text-gray-900 mb-4">Portfolio Overview</h3>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pie Chart */}
         <div>
@@ -53,16 +53,16 @@ export default function PortfolioOverview() {
         {/* Holdings List */}
         <div>
           <div className="mb-4">
-            <p className="text-3xl font-bold text-gray-900">${totalValue.toLocaleString()}</p>
+            <p className="text-3xl font-bold text-gray-900">${totalValue.toLocaleString('en-US')}</p>
             <p className="text-sm text-gray-600">Total Portfolio Value</p>
           </div>
-          
+
           <div className="space-y-3">
             {holdings.map((holding, index) => (
               <div key={holding.symbol} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-4 h-4 rounded-full" 
+                  <div
+                    className="w-4 h-4 rounded-full"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
                   />
                   <div>
@@ -71,7 +71,7 @@ export default function PortfolioOverview() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">${holding.value.toLocaleString()}</p>
+                  <p className="font-semibold text-gray-900">${holding.value.toLocaleString('en-US')}</p>
                   <p className="text-sm text-gray-600">{(holding.weight * 100).toFixed(1)}%</p>
                 </div>
               </div>

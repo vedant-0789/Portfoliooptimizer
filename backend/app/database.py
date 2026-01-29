@@ -15,15 +15,15 @@ DATABASE_URL = os.getenv("DATABASE_URL", "")
 if not DATABASE_URL or not DATABASE_URL.startswith("postgresql"):
     # Use SQLite for easier setup
     DATABASE_URL = "sqlite:///./portfolio_optimizer.db"
-    print("📦 Using SQLite database (portfolio_optimizer.db)")
+    print("Using SQLite database (portfolio_optimizer.db)")
 else:
-    print("📦 Using PostgreSQL database")
+    print("Using PostgreSQL database")
 
 try:
     engine = create_engine(DATABASE_URL, pool_pre_ping=True, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {})
 except Exception as e:
-    print(f"⚠️  Error connecting to database: {e}")
-    print("📦 Falling back to SQLite...")
+    print(f"Error connecting to database: {e}")
+    print("Falling back to SQLite...")
     DATABASE_URL = "sqlite:///./portfolio_optimizer.db"
     engine = create_engine(DATABASE_URL, pool_pre_ping=True, connect_args={"check_same_thread": False})
 
