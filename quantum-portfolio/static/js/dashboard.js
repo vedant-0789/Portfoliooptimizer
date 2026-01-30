@@ -3,7 +3,8 @@
 let userState = {
     amount: 124500,
     risk: 'Medium',
-    goal: 'Wealth Generation'
+    goal: 'Wealth Generation',
+    marketOpen: true
 };
 
 const portfolioData = {
@@ -66,18 +67,75 @@ window.onload = () => {
         });
     }
 
-    // Simulated price updates
+    // Initial Status Check
+    checkMarketStatus();
+    updateNews();
+
+    // Data Refresh Loops
     setInterval(updatePrices, 3000);
+    setInterval(checkMarketStatus, 30000); // Check market status every 30s
+    setInterval(updateNews, 60000); // Refresh news every minute
 };
 
+async function checkMarketStatus() {
+    try {
+        const res = await fetch('/api/market-status');
+        const data = await res.json();
+        userState.marketOpen = data.is_open;
+
+        const badge = document.getElementById('market-badge');
+        if (badge) {
+            badge.innerHTML = `<span class="w-2 h-2 ${data.is_open ? 'bg-green-500' : 'bg-red-500'} rounded-full mr-2 ${data.is_open ? 'animate-pulse' : ''}"></span> ${data.status}`;
+            badge.className = `px-3 py-1 rounded-full ${data.is_open ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'} text-xs font-bold flex items-center border ${data.is_open ? 'border-green-500/20' : 'border-red-500/20'}`;
+        }
+
+        const chartBadge = document.getElementById('chart-status-badge');
+        if (chartBadge) {
+            chartBadge.innerText = data.is_open ? "LIVE" : "CLOSED";
+            chartBadge.className = `px-3 py-1 text-xs ${data.is_open ? 'bg-primary' : 'bg-red-500'} rounded-md font-extrabold text-white transition-colors duration-500`;
+        }
+    } catch (e) {
+        console.error("Status check failed", e);
+    }
+}
+
+async function updateNews() {
+    const feed = document.getElementById('news-feed');
+    const ticker = document.getElementById('news-ticker');
+    if (!feed && !ticker) return;
+
+    try {
+        const res = await fetch('/api/news');
+        const news = await res.json();
+
+        if (feed) {
+            feed.innerHTML = news.map(item => `
+                <div class="p-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 transition group cursor-help">
+                    <div class="flex justify-between items-start mb-1">
+                        <p class="text-[10px] font-black tracking-widest ${item.sentiment === 'Bullish' ? 'text-green-400' : (item.sentiment === 'Bearish' ? 'text-red-400' : 'text-gray-400')} uppercase">${item.sentiment}</p>
+                        <span class="text-[8px] bg-primary/10 text-primary px-1.5 py-0.5 rounded uppercase font-bold tracking-tighter">${item.impact} IMPACT</span>
+                    </div>
+                    <h4 class="text-xs font-medium text-white/90 leading-snug group-hover:text-white transition">${item.title}</h4>
+                </div>
+            `).join('');
+        }
+
+        if (ticker) {
+            ticker.innerHTML = news.map(item => `
+                <span>◈ ${item.title} [${item.sentiment.toUpperCase()}]</span>
+            `).join('');
+        }
+    } catch (e) {
+        console.error("News fetch failed", e);
+    }
+}
+
 function updateDashboardWithInputs() {
-    // Update Valuation Display
     const valDisplay = document.getElementById('total-valuation');
     if (valDisplay) {
         valDisplay.innerText = `₹ ${userState.amount.toLocaleString()}`;
     }
 
-    // Dynamic logic for weights based on risk
     let newWeights = [40, 30, 20, 5, 5];
     if (userState.risk === 'High') newWeights = [20, 20, 30, 20, 10];
     if (userState.risk === 'Low') newWeights = [60, 20, 10, 0, 10];
@@ -89,7 +147,6 @@ function updateDashboardWithInputs() {
 }
 
 function closeAndSetup() {
-    console.log("Closing Manifesto and Setting up...");
     toggleManifesto();
     setTimeout(toggleOnboarding, 500);
 }
@@ -118,20 +175,28 @@ function toggleOnboarding() {
     }
 }
 
-function updatePrices() {
-    const elements = ['nifty', 'sensex', 'reliance', 'tcs'];
-    elements.forEach(el => {
-        const item = document.getElementById(`${el}-price`);
-        if (!item) return;
-        const currentText = item.innerText.replace(/,/g, '');
-        const current = parseFloat(currentText);
-        if (isNaN(current)) return;
+async function updatePrices() {
+    // Strictly no fluctuations if market is closed (dashboard shows closing prices)
+    if (!userState.marketOpen) return;
 
-        const change = (Math.random() - 0.5) * 10;
-        const newVal = (current + change).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        item.innerText = newVal;
-        item.className = `ml-2 font-bold ${change >= 0 ? 'text-green-400' : 'text-red-400'}`;
-    });
+    const elements = ['nifty', 'sensex', 'reliance', 'tcs', 'hdfcbank', 'infy'];
+
+    for (const el of elements) {
+        try {
+            const res = await fetch(`/api/live/${el}`);
+            const data = await res.json();
+
+            const item = document.getElementById(`${el}-price`);
+            if (item) {
+                const price = data.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                const isPositive = data.change >= 0;
+                item.innerText = price;
+                item.className = `ml-2 font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`;
+            }
+        } catch (e) {
+            console.error(`Failed to update ${el}`, e);
+        }
+    }
 }
 
 async function optimizePortfolio() {
@@ -139,6 +204,7 @@ async function optimizePortfolio() {
     const reasoning = document.getElementById('ai-reasoning');
     const results = document.getElementById('optimization-results');
     const strategyList = document.getElementById('strategy-list');
+    const suggestionList = document.getElementById('ai-suggestions');
     const ledger = document.getElementById('ledger-body');
 
     if (!btn || !reasoning) return;
@@ -167,6 +233,14 @@ async function optimizePortfolio() {
                 `;
             }
 
+            if (suggestionList && data.suggestions) {
+                suggestionList.innerHTML = data.suggestions.map(s => `
+                    <li class="flex items-center text-xs text-white/70 group-hover:text-primary transition">
+                        <span class="w-1.5 h-1.5 bg-primary/40 rounded-full mr-2"></span> ${s}
+                    </li>
+                `).join('');
+            }
+
             if (portfolioChart) {
                 portfolioChart.data.datasets[0].data = data.weights.map(w => w * 100);
                 portfolioChart.update();
@@ -184,7 +258,7 @@ async function optimizePortfolio() {
                 ledger.insertBefore(row, ledger.firstChild);
             }
 
-            speak(`Optimization complete for your ${userState.risk} portfolio. Strategy: ${data.strategy_name}.`);
+            speak(`Optimization complete. Suggestion: ${data.suggestions[0]}`);
         }, 1500);
     } catch (err) {
         console.error(err);

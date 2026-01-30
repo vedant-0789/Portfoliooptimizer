@@ -1,7 +1,8 @@
 from flask import Flask, render_template, jsonify, request
 import yfinance as yf
 import random
-from datetime import datetime
+from datetime import datetime, time
+import pytz
 import os
 
 app = Flask(__name__)
@@ -16,6 +17,21 @@ INDIAN_STOCKS = {
     "SENSEX": "^BSESN"
 }
 
+def is_market_open():
+    """Check if Indian Market is currently open (9:15 AM - 3:30 PM IST, Mon-Fri)"""
+    ist = pytz.timezone('Asia/Kolkata')
+    now = datetime.now(ist)
+    
+    # Check weekend
+    if now.weekday() >= 5:
+        return False
+        
+    market_start = time(9, 15)
+    market_end = time(15, 30)
+    current_time = now.time()
+    
+    return market_start <= current_time <= market_end
+
 @app.route('/')
 def dashboard():
     return render_template('index.html')
@@ -24,74 +40,136 @@ def dashboard():
 def analysis():
     return render_template('analysis.html')
 
+@app.route('/api/market-status')
+def market_status():
+    open_status = is_market_open()
+    ist = pytz.timezone('Asia/Kolkata')
+    now = datetime.now(ist)
+    return jsonify({
+        'is_open': open_status,
+        'status': "LIVE" if open_status else "MARKET CLOSED",
+        'timestamp': now.isoformat(),
+        'next_session': "Monday 09:15 AM" if now.weekday() >= 4 else "Tomorrow 09:15 AM"
+    })
+
 @app.route('/api/live/<stock>')
 def live_price(stock):
-    """Fetch live price for Indian Stocks using yfinance"""
-    ticker = INDIAN_STOCKS.get(stock.upper(), stock)
+    """Fetch live price for Indian Stocks using yfinance with robust fallbacks"""
+    ticker_map = {
+        "NIFTY": "^NSEI",
+        "SENSEX": "^BSESN",
+        "RELIANCE": "RELIANCE.NS",
+        "TCS": "TCS.NS",
+        "HDFCBANK": "HDFCBANK.NS",
+        "INFY": "INFY.NS"
+    }
+    symbol = stock.upper()
+    ticker = ticker_map.get(symbol, f"{symbol}.NS")
+    market_open = is_market_open()
     
     try:
-        # Use fast info or history
         stock_obj = yf.Ticker(ticker)
-        # Fast Access to data
-        data = stock_obj.fast_info
-        price = data.last_price
-        prev_close = data.previous_close
+        # Try both fast_info and history as fallbacks
+        price = 0
+        prev_close = 0
         
+        try:
+            info = stock_obj.fast_info
+            price = info.last_price
+            prev_close = info.previous_close
+        except:
+            hist = stock_obj.history(period="2d")
+            if not hist.empty:
+                price = hist['Close'].iloc[-1]
+                prev_close = hist['Close'].iloc[0]
+        
+        if price == 0 or prev_close == 0:
+            raise ValueError("Data not available")
+
         change = price - prev_close
         percent = (change / prev_close) * 100
-        
+            
         return jsonify({
-            'symbol': stock.upper(),
+            'symbol': symbol,
             'price': round(price, 2),
             'change': round(change, 2),
             'percent': round(percent, 2),
-            'currency': '₹'
+            'currency': '₹',
+            'is_live': market_open
         })
     except Exception as e:
-        # Fallback Simulation if API fails (common for free yfinance in high freq)
-        base_price = {
-            "RELIANCE": 2500, "TCS": 3500, "NIFTY": 24000, "SENSEX": 80000
-        }.get(stock.upper(), 1000)
+        # Fallback simulation with more accurate real market figures
+        base_prices = {
+            "RELIANCE": 2980, "TCS": 3850, "NIFTY": 24950, "SENSEX": 82300, "HDFCBANK": 1650, "INFY": 1520
+        }
+        base_price = base_prices.get(symbol, 1000)
         
-        sim_price = base_price * (1 + (random.random() - 0.5) * 0.02)
+        # Micro-fluctuation for demo if market is open
+        fluctuation = (random.random() - 0.5) * 0.002 if market_open else 0
+        sim_price = base_price * (1 + fluctuation)
+        
         return jsonify({
-            'symbol': stock.upper(),
+            'symbol': symbol,
             'price': round(sim_price, 2),
-            'change': round(sim_price * 0.01, 2),
-            'percent': 1.05,
+            'change': round(sim_price * 0.001, 2),
+            'percent': 0.15,
             'currency': '₹',
-            'note': 'simulated'
+            'note': 'simulated',
+            'is_live': market_open
         })
+
+@app.route('/api/news')
+def get_news():
+    """Simulated Global & Google News with Sentiment"""
+    news_pool = [
+        {"title": "Global Tech Stocks Rally as AI Demand Surges", "sentiment": "Bullish", "impact": "High"},
+        {"title": "US Federal Reserve hints at potential rate cuts in Q3", "sentiment": "Bullish", "impact": "Extreme"},
+        {"title": "Oil prices stabilize amid easing Middle East tensions", "sentiment": "Neutral", "impact": "Medium"},
+        {"title": "Indian Economy projected to grow at 7.2% in FY26", "sentiment": "Bullish", "impact": "High"},
+        {"title": "Eurozone inflation hits 2-year low; ECB considers pivot", "sentiment": "Bullish", "impact": "Medium"},
+        {"title": "Global Logistics Hub in Mumbai attracts $5B investment", "sentiment": "Bullish", "impact": "High"},
+        {"title": "Tesla faces investigation over autopilot software", "sentiment": "Bearish", "impact": "Medium"},
+        {"title": "Reliance expanding Green Hydrogen capacity by 20%", "sentiment": "Bullish", "impact": "High"}
+    ]
+    # Return 6 random news
+    return jsonify(random.sample(news_pool, 6))
 
 @app.route('/api/optimize', methods=['GET'])
 def optimize_portfolio():
-    """Simulate RL Optimization"""
-    # In a real app, this would use the PPO model from models/rl_model.py
-    # Here we simulate the AI proposing a new weight distribution
-    
+    """Simulate RL Optimization with detailed suggestions"""
     strategies = [
-        {"name": "Aggressive Alpha", "weights": [0.40, 0.30, 0.20, 0.10]},  # SmallCap, MidCap, Crypto, Bluechip
-        {"name": "Balanced Growth", "weights": [0.30, 0.30, 0.30, 0.10]},
-        {"name": "Quantum Safe Defense", "weights": [0.10, 0.20, 0.50, 0.20]} # Gold/Stable heavy
+        {
+            "name": "Aggressive Alpha", 
+            "weights": [0.40, 0.30, 0.20, 0.10], 
+            "reasoning": "Detected bullish divergence in Mid-cap indices. AI suggests overweighting High-Beta stocks for maximum alpha generation.",
+            "suggestions": ["Increase RELIANCE weight", "Accumulate Small-Cap IT", "Reduce Gold hedge"]
+        },
+        {
+            "name": "Balanced Growth", 
+            "weights": [0.30, 0.30, 0.30, 0.10],
+            "reasoning": "Market volatility is stabilizing. Suggests a 60/40 Equity-to-Defensive split to capture upside while protecting downside.",
+            "suggestions": ["Hold Nifty 50 Index", "Maintain 10% Cash", "Rebalance Sectoral weights"]
+        },
+        {
+            "name": "Quantum Safe Defense", 
+            "weights": [0.10, 0.20, 0.50, 0.20],
+            "reasoning": "Sentiment analysis detects micro-anomalies in global debt markets. AI recommends defensive rotation to Gold and Sovereign Bonds.",
+            "suggestions": ["Buy SGB (Gold Bonds)", "Increase Debt allocation", "Partial profit booking in Small-caps"]
+        }
     ]
     
     strategy = random.choice(strategies)
-    reasoning = [
-        "Detected bullish sentiment in IT Sector.",
-        "RBI Policy stability favors Banking stocks.",
-        "Global volatility triggered defensive rotation to Gold."
-    ]
-    
     return jsonify({
         'weights': strategy['weights'],
         'strategy_name': strategy['name'],
-        'reasoning': random.choice(reasoning),
-        'alpha': round(random.uniform(1.5, 4.0), 2)  # Predicted Alpha
+        'reasoning': strategy['reasoning'],
+        'suggestions': strategy['suggestions'],
+        'alpha': round(random.uniform(1.5, 4.0), 2)
     })
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze_user():
-    """Analyze User Profile for recommendations (Onboarding)"""
+    """Analyze User Profile for recommendations"""
     data = request.json
     risk = data.get('risk', 'Medium')
     
@@ -99,19 +177,22 @@ def analyze_user():
         return jsonify({
             'allocation': ['Small Cap', 'Crypto', 'Mid Cap', 'Bluechip'],
             'weights': [40, 20, 30, 10],
-            'note': 'High Risk - High Reward'
+            'prediction': 'High volatility expected. Target 18-22% annual returns.',
+            'tip': 'Use Stop-Loss at 5% for speculative positions.'
         })
     elif risk == 'Low':
         return jsonify({
             'allocation': ['Gold', 'Debt', 'Index Fund', 'Bluechip'],
             'weights': [30, 40, 20, 10],
-            'note': 'Wealth Preservation'
+            'prediction': 'Stable growth. Target 8-10% annual returns beating inflation.',
+            'tip': 'Focus on Dividend-paying stocks for passive income.'
         })
     else:
         return jsonify({
             'allocation': ['Bluechip', 'Flexi Cap', 'Gold', 'Bonds'],
             'weights': [40, 30, 20, 10],
-            'note': 'Balanced Growth'
+            'prediction': 'Consistent wealth creation. Target 12-15% annual returns.',
+            'tip': 'Monthly SIP is recommended for this risk profile.'
         })
 
 @app.route('/api/monte-carlo')
@@ -121,13 +202,11 @@ def monte_carlo():
     iterations = 50
     start_price = 100
     
-    # Generate 50 random paths
     paths = []
     for _ in range(iterations):
         path = [start_price]
         current_price = start_price
         for _ in range(days):
-            # 10% annual volatility, 5% annual return
             daily_return = (0.05 / 252) + (0.1 / (252**0.5)) * random.normalvariate(0, 1)
             current_price *= (1 + daily_return)
             path.append(round(current_price, 2))
