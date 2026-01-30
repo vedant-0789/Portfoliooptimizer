@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALGORHYTHM | Quantum Portfolio</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#0ea5e9', // Sky 500
+                        secondary: '#1E293B',
+                        accent: '#10B981',
+                        success: '#22c55e',
+                        danger: '#ef4444'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <svg class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                    <span class="ml-2 text-xl font-bold tracking-tight text-secondary">ALGORHYTHM</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span
+                        class="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold flex items-center animate-pulse">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> LIVE MARKET
+                    </span>
+                    <a href="/" class="text-sm font-medium text-primary hover:text-blue-700">Dashboard</a>
+                    <a href="/analysis" class="text-sm font-medium text-gray-500 hover:text-primary">Analysis</a>
+                    <button id="wallet-btn" onclick="connectWallet()"
+                        class="bg-secondary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition">Connect
+                        Wallet</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Ticker Tape (Simulated) -->
+    <div class="bg-secondary text-white py-2 overflow-hidden">
+        <div class="flex space-x-8 animate-marquee whitespace-nowrap px-4" id="ticker-tape">
+            <span class="flex items-center cursor-pointer hover:underline" onclick="loadChart('NSE:NIFTY')">NIFTY <span
+                    class="ml-2 text-green-400 font-bold" id="nifty-price">Loading...</span></span>
+            <span class="flex items-center cursor-pointer hover:underline" onclick="loadChart('BSE:SENSEX')">SENSEX
+                <span class="ml-2 text-green-400 font-bold" id="sensex-price">Loading...</span></span>
+            <span class="flex items-center cursor-pointer hover:underline" onclick="loadChart('BSE:RELIANCE')">RELIANCE
+                <span class="ml-2 text-green-400 font-bold" id="reliance-price">Loading...</span></span>
+            <span class="flex items-center cursor-pointer hover:underline" onclick="loadChart('BSE:TCS')">TCS <span
+                    class="ml-2 text-red-400 font-bold" id="tcs-price">Loading...</span></span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Left Column: Chart & Market Data -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- TradingView Chart -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border h-[500px]">
+                    <h2 class="text-lg font-bold mb-4 flex items-center">
+                        <span class="mr-2">🇮🇳</span> NIFTY 50 Live Chart
+                    </h2>
+                    <!-- TradingView Widget BEGIN -->
+                    <div class="tradingview-widget-container" style="height:100%;width:100%">
+                        <div id="tradingview_b2474" style="height:400px;width:100%"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                        <script type="text/javascript">
+                            new TradingView.widget(
+                                {
+                                    "autosize": true,
+                                    "symbol": "NSE:NIFTY",
+                                    "interval": "D",
+                                    "timezone": "Asia/Kolkata",
+                                    "theme": "light",
+                                    "style": "1",
+                                    "locale": "in",
+                                    "enable_publishing": false,
+                                    "allow_symbol_change": true,
+                                    "container_id": "tradingview_b2474"
+                                }
+                            );
+                        </script>
+                    </div>
+                    <!-- TradingView Widget END -->
+                </div>
+
+                <!-- Quantum Ledger -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">Quantum-Resistant Ledger</h3>
+                        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Kyber-1024
+                            Protected</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-500">
+                                <tr>
+                                    <th class="px-4 py-2">Hash</th>
+                                    <th class="px-4 py-2">Action</th>
+                                    <th class="px-4 py-2">Asset</th>
+                                    <th class="px-4 py-2">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ledger-body">
+                                <tr class="border-b">
+                                    <td class="px-4 py-3 font-mono text-xs text-gray-500">0x7f...3a2b</td>
+                                    <td class="px-4 py-3">Optimize</td>
+                                    <td class="px-4 py-3">Portfolio Rebalance</td>
+                                    <td class="px-4 py-3 text-green-600 font-semibold">Verified</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: AI Optimizer -->
+            <div class="space-y-8">
+                <!-- Portfolio Composition -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border">
+                    <h3 class="text-lg font-bold mb-4">Current Allocation</h3>
+                    <div class="relative h-64">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <p class="text-sm text-gray-500">Total Value</p>
+                        <p class="text-3xl font-bold text-gray-900">₹ 1,24,500</p>
+                        <p class="text-xs text-green-500 font-medium">+12.4% (Available Alpha)</p>
+                    </div>
+                </div>
+
+                <!-- AI Actions -->
+                <div class="bg-gradient-to-br from-secondary to-gray-900 text-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-lg font-bold mb-2">AI Sentinel</h3>
+                    <p class="text-gray-400 text-sm mb-4" id="ai-reasoning">Scanning market sentiment...</p>
+
+                    <button onclick="optimizePortfolio()" id="optimize-btn"
+                        class="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-lg font-bold transition flex items-center justify-center">
+                        <span>⚡ Run Quantum Optimization</span>
+                    </button>
+
+                    <div id="optimization-results" class="hidden mt-4 pt-4 border-t border-gray-700 animate-fade-in">
+                        <p class="text-xs text-green-400 font-bold mb-2">PROPOSED STRATEGY FOUND:</p>
+                        <ul class="text-sm space-y-1 text-gray-300" id="strategy-list">
+                            <!-- Items inserted via JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- JS Logic -->
+    <script src="/static/js/dashboard.js"></script>
+</body>
+
+</html>

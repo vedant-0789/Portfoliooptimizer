@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALGORHYTHM | Deep Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        primary: '#0ea5e9',
+                        secondary: '#1E293B',
+                        accent: '#10B981',
+                        success: '#22c55e',
+                        danger: '#ef4444'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-900 font-sans">
+    <nav class="bg-white border-b sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center cursor-pointer" onclick="window.location.href='/'">
+                    <svg class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    </svg>
+                    <span class="ml-2 text-xl font-bold tracking-tight text-secondary">ALGORHYTHM</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span
+                        class="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold flex items-center animate-pulse">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> LIVE MARKET
+                    </span>
+                    <a href="/" class="text-sm font-medium text-gray-500 hover:text-primary">Dashboard</a>
+                    <a href="/analysis" class="text-sm font-medium text-primary border-b-2 border-primary">Analysis</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Deep Portfolio Analysis</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Risk Metrics -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border">
+                <h3 class="text-lg font-bold mb-4">Risk Metrics</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-500">Sharpe Ratio</p>
+                        <p class="text-2xl font-bold text-success">2.45</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-500">Portfolio Beta</p>
+                        <p class="text-2xl font-bold text-primary">0.85</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-500">Max Drawdown</p>
+                        <p class="text-2xl font-bold text-danger">-12.4%</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-500">Quantum Safety Score</p>
+                        <p class="text-2xl font-bold text-purple-600">98/100</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insight -->
+            <div class="bg-gradient-to-br from-secondary to-gray-900 text-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-lg font-bold mb-4">AI Sentiment Analysis</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span>Market Sentiment</span>
+                        <span class="px-2 py-1 bg-green-500 rounded text-xs font-bold">BULLISH</span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-2.5">
+                        <div class="bg-green-500 h-2.5 rounded-full" style="width: 75%"></div>
+                    </div>
+                    <p class="text-gray-300 text-sm italic">"Our models detect a strong influx of FII capital into
+                        Indian equity markets, specifically targeting the Banking and Infrastructure sectors."</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border h-96">
+            <h3 class="text-lg font-bold mb-4">Sector Allocation</h3>
+            <canvas id="sectorChart"></canvas>
+        </div>
+    </main>
+
+    <script>
+        const ctx = document.getElementById('sectorChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Banking', 'IT', 'Energy', 'Pharma', 'Auto'],
+                datasets: [{
+                    label: 'Allocation %',
+                    data: [35, 25, 20, 10, 10],
+                    backgroundColor: ['#0ea5e9', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6']
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    </script>
+</body>
+
+</html>
