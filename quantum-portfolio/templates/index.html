@@ -35,18 +35,38 @@
         }
     </script>
     <style>
+        :root {
+            --primary: #0ea5e9;
+            --secondary: #0f172a;
+            --accent: #10b981;
+            --quantum: #8b5cf6;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
 
         .animate-fade-in {
-            animation: fadeIn 0.5s ease-in;
+            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
 
             to {
@@ -54,110 +74,328 @@
                 transform: translateY(0);
             }
         }
+
+        .quantum-matrix {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.15;
+            background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)),
+                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        }
+
+        .glow-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .glow-button:hover {
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.6);
+            transform: scale(1.02);
+        }
+
+        .glow-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+        }
+
+        .glow-button:hover::after {
+            left: 100%;
+            top: 100%;
+        }
+
+        #voice-btn.recording {
+            background-color: #ef4444;
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                transform: scale(1.1);
+                box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
     </style>
 </head>
 
-<body class="bg-gray-50 text-gray-900 font-sans">
+<body class="bg-gray-900 text-slate-200 font-sans">
+    <div class="quantum-matrix"></div>
 
     <!-- Navbar -->
-    <nav class="bg-white border-b sticky top-0 z-50">
+    <nav class="border-b border-white/10 sticky top-0 z-50 glass">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <svg class="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                    <span class="ml-2 text-xl font-bold tracking-tight text-secondary">ALGORHYTHM</span>
+                    <div class="bg-primary/20 p-2 rounded-lg mr-3">
+                        <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-white">ALGORHYTHM <span
+                            class="text-xs font-light text-primary tracking-widest ml-1 opacity-70 uppercase">v2.1</span></span>
                 </div>
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-6">
+                    <!-- Project Manifesto Toggle -->
+                    <button onclick="toggleManifesto()"
+                        class="text-xs font-bold text-gray-400 hover:text-primary transition uppercase tracking-widest">Manifesto</button>
+
+                    <!-- Voice Control Button -->
+                    <button id="voice-btn" onclick="toggleVoiceSearch()"
+                        class="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-all group relative">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-primary" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                        <span
+                            class="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-black text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap">Voice
+                            Insight</span>
+                    </button>
+
                     <span
-                        class="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-bold flex items-center animate-pulse">
-                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span> LIVE MARKET
+                        class="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-bold flex items-center border border-green-500/20">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> LIVE MARKET
                     </span>
-                    <a href="/" class="text-sm font-medium text-primary hover:text-blue-700">Dashboard</a>
-                    <a href="/analysis" class="text-sm font-medium text-gray-500 hover:text-primary">Analysis</a>
+                    <a href="/" class="text-sm font-medium text-primary">Dashboard</a>
+                    <a href="/analysis"
+                        class="text-sm font-medium text-gray-400 hover:text-white transition">Analysis</a>
                     <button id="wallet-btn" onclick="connectWallet()"
-                        class="bg-secondary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition">Connect
-                        Wallet</button>
+                        class="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold glow-button">Connect
+                        Portfolio</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Ticker Tape (Simulated) -->
-    <div class="bg-secondary text-white py-2 overflow-hidden">
-        <div class="flex space-x-8 animate-marquee whitespace-nowrap px-4" id="ticker-tape">
-            <span class="flex items-center cursor-pointer hover:underline" onclick="loadChart('NSE:NIFTY')">NIFTY <span
-                    class="ml-2 text-green-400 font-bold" id="nifty-price">Loading...</span></span>
-            <span class="flex items-center cursor-pointer hover:underline" onclick="loadChart('BSE:SENSEX')">SENSEX
-                <span class="ml-2 text-green-400 font-bold" id="sensex-price">Loading...</span></span>
-            <span class="flex items-center cursor-pointer hover:underline" onclick="loadChart('BSE:RELIANCE')">RELIANCE
-                <span class="ml-2 text-green-400 font-bold" id="reliance-price">Loading...</span></span>
-            <span class="flex items-center cursor-pointer hover:underline" onclick="loadChart('BSE:TCS')">TCS <span
-                    class="ml-2 text-red-400 font-bold" id="tcs-price">Loading...</span></span>
+    <!-- Manifesto Modal -->
+    <div id="manifesto-modal"
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div
+            class="glass max-w-2xl w-full p-8 rounded-3xl border border-white/10 max-h-[90vh] overflow-y-auto no-scrollbar relative">
+            <button onclick="toggleManifesto()"
+                class="absolute top-6 right-6 text-gray-400 hover:text-white transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+            <h2 class="text-3xl font-black text-white mb-6 uppercase tracking-tight">Project Manifesto</h2>
+
+            <div class="space-y-6 text-gray-300 text-sm leading-relaxed">
+                <section class="p-4 bg-primary/10 rounded-xl border border-primary/20">
+                    <h3 class="text-primary font-bold mb-2 tracking-widest uppercase text-xs">Overview</h3>
+                    <p>ALGORHYTHM is a smart web dashboard that helps everyday investors grow money safely by
+                        automatically picking the best mix of stocks, bonds, crypto, and funds. It uses advanced AI to
+                        constantly tweak investments based on live news and social buzz, while protecting everything
+                        with super-secure tech that even future supercomputers can't hack.</p>
+                </section>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h4 class="text-white font-bold mb-2 flex items-center"><span class="mr-2">🚨</span> The Problem
+                        </h4>
+                        <p class="text-xs opacity-80 leading-normal">Normal investment apps ignore real-time social
+                            chatter (like "Tesla stock crashing") and use encryption that can be broken by quantum
+                            computers in 5-10 years, risking your entire portfolio.</p>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/10">
+                        <h4 class="text-white font-bold mb-2 flex items-center"><span class="mr-2">💡</span> The Fix
+                        </h4>
+                        <p class="text-xs opacity-80 leading-normal">ALGORHYTHM beats the market by 15%+ through smart
+                            AI predictions and stays hack-proof forever using Post-Quantum Cryptography.</p>
+                    </div>
+                </div>
+
+                <section>
+                    <h3 class="text-white font-bold mb-3 tracking-widest uppercase text-xs">How It Works</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start"><span class="text-primary mr-3 mt-1">1.</span>
+                            <div><strong>Input Basics:</strong> Define money, risk level, and goals.</div>
+                        </li>
+                        <li class="flex items-start"><span class="text-primary mr-3 mt-1">2.</span>
+                            <div><strong>AI Analysis:</strong> Scans stock news and social sentiment (Twitter/Reddit)
+                                using Reinforcement Learning.</div>
+                        </li>
+                        <li class="flex items-start"><span class="text-primary mr-3 mt-1">3.</span>
+                            <div><strong>Quantum Shield:</strong> Uses NIST-standard Post-Quantum Cryptography and
+                                Blockchain ledger.</div>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="p-4 bg-green-500/10 rounded-xl border border-green-500/20">
+                    <h3 class="text-green-400 font-bold mb-2 tracking-widest uppercase text-xs italic">Example in Action
+                    </h3>
+                    <p class="text-xs opacity-90">Start with ₹1L. AI spots hype on Green Energy → Rebalances 30% into
+                        solar stocks. Result: +12% return vs market +2%, all logged on the blockchain for permanent
+                        verification.</p>
+                </section>
+            </div>
+
+            <button onclick="closeAndSetup()"
+                class="w-full mt-8 bg-primary py-3 rounded-xl font-bold text-white shadow-lg shadow-primary/20 transition hover:bg-blue-600 uppercase text-xs tracking-widest">Got
+                it, Let's Optimize</button>
+        </div>
+    </div>
+
+    <!-- Onboarding Modal (Connect Portfolio) -->
+    <div id="onboarding-modal"
+        class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300">
+        <div class="glass max-w-md w-full p-8 rounded-3xl border border-white/10 relative">
+            <button onclick="toggleOnboarding()"
+                class="absolute top-6 right-6 text-gray-400 hover:text-white transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+            <h2 class="text-2xl font-black text-white mb-2 uppercase tracking-tight">Configure Portfolio</h2>
+            <p class="text-gray-500 text-xs mb-8 uppercase tracking-widest">Setting up your AI Sentinel profile</p>
+
+            <form id="portfolio-form" class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Initial
+                        Capital (INR)</label>
+                    <input type="number" id="input-amount" placeholder="e.g. 100000"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition"
+                        required>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Risk
+                        Vector Alignment</label>
+                    <select id="input-risk"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition">
+                        <option value="Low">Defensive (Low Risk)</option>
+                        <option value="Medium" selected>Aggressive (Medium Risk)</option>
+                        <option value="High">Quantum-Growth (High Risk)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Temporal
+                        Goal</label>
+                    <input type="text" id="input-goal" placeholder="e.g. Retirement in 5 Years"
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition">
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-primary py-4 rounded-xl font-black text-white shadow-xl shadow-primary/20 transition hover:bg-blue-600 uppercase text-xs tracking-widest">Synchronize
+                    Nodes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Ticker Tape -->
+    <div class="bg-black/50 border-b border-white/5 text-white/70 py-2 overflow-hidden backdrop-blur-sm">
+        <div class="flex space-x-12 animate-marquee whitespace-nowrap px-4 text-xs font-medium uppercase tracking-wider"
+            id="ticker-tape">
+            <span class="flex items-center hover:text-white transition cursor-pointer"
+                onclick="loadChart('NSE:NIFTY')">NIFTY 50 <span class="ml-2 text-green-400 font-bold"
+                    id="nifty-price">24,321.05</span></span>
+            <span class="flex items-center hover:text-white transition cursor-pointer"
+                onclick="loadChart('BSE:SENSEX')">SENSEX <span class="ml-2 text-green-400 font-bold"
+                    id="sensex-price">79,902.10</span></span>
+            <span class="flex items-center hover:text-white transition cursor-pointer"
+                onclick="loadChart('NSE:RELIANCE', 'NSE')">RELIANCE <span class="ml-2 text-red-400 font-bold"
+                    id="reliance-price">2,980.50</span></span>
+            <span class="flex items-center hover:text-white transition cursor-pointer"
+                onclick="loadChart('NSE:TCS', 'NSE')">TCS <span class="ml-2 text-green-400 font-bold"
+                    id="tcs-price">3,850.25</span></span>
+            <span class="flex items-center hover:text-white transition cursor-pointer"
+                onclick="loadChart('BINANCE:BTCUSDT', 'CRYPTO')">BITCOIN <span
+                    class="ml-2 text-primary font-bold">102,450</span></span>
         </div>
     </div>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             <!-- Left Column: Chart & Market Data -->
             <div class="lg:col-span-2 space-y-8">
                 <!-- TradingView Chart -->
-                <div class="bg-white p-4 rounded-xl shadow-sm border h-[500px]">
-                    <h2 class="text-lg font-bold mb-4 flex items-center">
-                        <span class="mr-2">🇮🇳</span> NIFTY 50 Live Chart
-                    </h2>
-                    <!-- TradingView Widget BEGIN -->
-                    <div class="tradingview-widget-container" style="height:100%;width:100%">
-                        <div id="tradingview_b2474" style="height:400px;width:100%"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                        <script type="text/javascript">
-                            new TradingView.widget(
-                                {
-                                    "autosize": true,
-                                    "symbol": "NSE:NIFTY",
-                                    "interval": "D",
-                                    "timezone": "Asia/Kolkata",
-                                    "theme": "light",
-                                    "style": "1",
-                                    "locale": "in",
-                                    "enable_publishing": false,
-                                    "allow_symbol_change": true,
-                                    "container_id": "tradingview_b2474"
-                                }
-                            );
-                        </script>
+                <div
+                    class="glass p-6 rounded-2xl shadow-2xl border border-white/10 h-[580px] group transition-all duration-500 hover:border-primary/30">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold flex items-center text-white">
+                            <span class="mr-3 p-1.5 bg-primary/10 rounded-lg text-primary">📊</span> Market Topology
+                            <span class="ml-3 text-xs font-normal text-gray-500 border-l border-white/10 pl-3">REAL-TIME
+                                DATASTREAM</span>
+                        </h2>
+                        <div class="flex bg-white/5 p-1 rounded-lg border border-white/5">
+                            <button
+                                class="px-3 py-1 text-xs bg-primary rounded-md font-extrabold text-white">LIVE</button>
+                            <div
+                                class="px-3 py-1 text-[10px] text-gray-500 font-bold uppercase tracking-widest flex items-center">
+                                <span class="w-1.5 h-1.5 bg-primary rounded-full mr-2 animate-ping"></span> Sync Ready
+                            </div>
+                        </div>
                     </div>
-                    <!-- TradingView Widget END -->
+                    <!-- TradingView Widget -->
+                    <div id="tv-container"
+                        class="h-[440px] rounded-xl overflow-hidden border border-white/5 bg-black/20 transition-all duration-700">
+                        <div id="tradingview_b2474" style="height:100%;width:100%"></div>
+                    </div>
                 </div>
 
                 <!-- Quantum Ledger -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold">Quantum-Resistant Ledger</h3>
-                        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">Kyber-1024
-                            Protected</span>
+                <div class="glass p-6 rounded-2xl border border-white/10">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Post-Quantum Blockchain Ledger</h3>
+                            <p class="text-xs text-gray-500 mt-1 uppercase tracking-tighter">TAMPER-PROOF RECORD OF ALL
+                                AI REBALANCING EVENTS</p>
+                        </div>
+                        <span
+                            class="text-[10px] font-black tracking-widest bg-purple-500/20 text-purple-400 px-3 py-1.5 rounded-full border border-purple-500/30 uppercase">
+                            Kyber-1024 Secure
+                        </span>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto no-scrollbar">
                         <table class="min-w-full text-sm text-left">
-                            <thead class="bg-gray-50 text-gray-500">
+                            <thead class="text-gray-500 border-b border-white/5">
                                 <tr>
-                                    <th class="px-4 py-2">Hash</th>
-                                    <th class="px-4 py-2">Action</th>
-                                    <th class="px-4 py-2">Asset</th>
-                                    <th class="px-4 py-2">Status</th>
+                                    <th class="px-4 py-3 font-medium">Quantum Signature Hash</th>
+                                    <th class="px-4 py-3 font-medium">Operation</th>
+                                    <th class="px-4 py-3 font-medium">Timestamp</th>
+                                    <th class="px-4 py-3 font-medium">Status</th>
                                 </tr>
                             </thead>
-                            <tbody id="ledger-body">
-                                <tr class="border-b">
-                                    <td class="px-4 py-3 font-mono text-xs text-gray-500">0x7f...3a2b</td>
-                                    <td class="px-4 py-3">Optimize</td>
-                                    <td class="px-4 py-3">Portfolio Rebalance</td>
-                                    <td class="px-4 py-3 text-green-600 font-semibold">Verified</td>
+                            <tbody id="ledger-body" class="text-gray-300">
+                                <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                                    <td class="px-4 py-4 font-mono text-xs text-primary/80">0x7f...3a2b8e9c1d...</td>
+                                    <td class="px-4 py-4 flex items-center">
+                                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                                        AI Optimization
+                                    </td>
+                                    <td class="px-4 py-4 text-xs font-mono">13:42:05.902</td>
+                                    <td class="px-4 py-4">
+                                        <span
+                                            class="bg-green-500/10 text-green-400 px-2 py-1 rounded-md text-[10px] font-bold border border-green-500/20 uppercase tracking-tighter">Verified</span>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -168,34 +406,92 @@
             <!-- Right Column: AI Optimizer -->
             <div class="space-y-8">
                 <!-- Portfolio Composition -->
-                <div class="bg-white p-6 rounded-xl shadow-sm border">
-                    <h3 class="text-lg font-bold mb-4">Current Allocation</h3>
-                    <div class="relative h-64">
-                        <canvas id="portfolioChart"></canvas>
+                <div class="glass p-6 rounded-2xl border border-white/10">
+                    <div class="flex justify-between items-start mb-6">
+                        <h3 class="text-lg font-bold text-white uppercase tracking-tight">Portfolio Node</h3>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-500 uppercase tracking-widest">Growth</p>
+                            <p class="text-sm text-green-400 font-black">+12.4%</p>
+                        </div>
                     </div>
-                    <div class="mt-4 text-center">
-                        <p class="text-sm text-gray-500">Total Value</p>
-                        <p class="text-3xl font-bold text-gray-900">₹ 1,24,500</p>
-                        <p class="text-xs text-green-500 font-medium">+12.4% (Available Alpha)</p>
+                    <div class="relative h-60 mb-6 flex items-center justify-center">
+                        <canvas id="portfolioChart"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span class="text-[10px] text-gray-500 uppercase font-black">Alpha</span>
+                            <span class="text-xl font-black text-white">4.2</span>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-white/5 rounded-xl border border-white/10 flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest leading-none mb-1">Total
+                                Valuation</p>
+                            <p id="total-valuation" class="text-2xl font-black text-white">₹ 1,24,500</p>
+                        </div>
+                        <div class="p-2 bg-primary/10 rounded-lg">
+                            <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
 
-                <!-- AI Actions -->
-                <div class="bg-gradient-to-br from-secondary to-gray-900 text-white p-6 rounded-xl shadow-lg">
-                    <h3 class="text-lg font-bold mb-2">AI Sentinel</h3>
-                    <p class="text-gray-400 text-sm mb-4" id="ai-reasoning">Scanning market sentiment...</p>
-
-                    <button onclick="optimizePortfolio()" id="optimize-btn"
-                        class="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-lg font-bold transition flex items-center justify-center">
-                        <span>⚡ Run Quantum Optimization</span>
-                    </button>
-
-                    <div id="optimization-results" class="hidden mt-4 pt-4 border-t border-gray-700 animate-fade-in">
-                        <p class="text-xs text-green-400 font-bold mb-2">PROPOSED STRATEGY FOUND:</p>
-                        <ul class="text-sm space-y-1 text-gray-300" id="strategy-list">
-                            <!-- Items inserted via JS -->
-                        </ul>
+                <!-- AI Sentinel -->
+                <div
+                    class="bg-gradient-to-br from-primary/80 to-blue-700/80 p-6 rounded-2xl shadow-2xl relative overflow-hidden group">
+                    <div
+                        class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:bg-white/20 transition-all duration-500">
                     </div>
+
+                    <div class="relative">
+                        <div class="flex items-center mb-4">
+                            <div class="p-2 bg-white/20 rounded-lg mr-3">
+                                <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-black text-white uppercase tracking-tight">AI Sentinel Engine</h3>
+                        </div>
+
+                        <p class="text-blue-50 text-xs mb-6 leading-relaxed opacity-90 italic text-center min-h-[40px]"
+                            id="ai-reasoning">
+                            "Standing by for quantum-optimized directive..."
+                        </p>
+
+                        <button onclick="optimizePortfolio()" id="optimize-btn"
+                            class="w-full bg-white text-primary hover:bg-blue-50 py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-xl transition-all active:scale-95 flex items-center justify-center">
+                            <span>Execute Quantum Scan</span>
+                        </button>
+
+                        <div id="optimization-results"
+                            class="hidden mt-6 pt-6 border-t border-white/20 animate-fade-in text-center">
+                            <div class="text-[9px] font-black text-white/50 mb-3 tracking-[0.3em] uppercase">
+                                Post-Quantum Optimization Log</div>
+                            <ul class="text-sm space-y-3" id="strategy-list">
+                                <!-- Items inserted via JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Quantum Shield Toggle -->
+                <div
+                    class="glass p-5 rounded-2xl border border-white/10 flex items-center justify-between group transition-all duration-300 hover:bg-white/5">
+                    <div class="flex items-center">
+                        <div class="p-2 bg-purple-500/10 rounded-lg mr-3">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-white">Quantum Shield</p>
+                            <p class="text-[10px] text-gray-500">NIST PQC Standards</p>
+                        </div>
+                    </div>
+                    <button onclick="activateQuantumShield()" id="shield-btn"
+                        class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-black shadow-lg shadow-purple-500/30 transition uppercase">Activate</button>
                 </div>
             </div>
 
@@ -203,6 +499,40 @@
 
     </main>
 
+    <!-- TradingView Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+        let tvWidget;
+        function loadChart(symbol = "NSE:NIFTY", exchange = "NSE") {
+            const containerId = "tradingview_b2474";
+            document.getElementById('tv-container').classList.add('opacity-0', 'scale-95');
+
+            setTimeout(() => {
+                tvWidget = new TradingView.widget({
+                    "autosize": true,
+                    "symbol": symbol,
+                    "interval": "D",
+                    "timezone": "Asia/Kolkata",
+                    "theme": "dark",
+                    "style": "1",
+                    "locale": "in",
+                    "toolbar_bg": "#f1f3f6",
+                    "enable_publishing": false,
+                    "allow_symbol_change": true,
+                    "container_id": containerId
+                });
+
+                setTimeout(() => {
+                    document.getElementById('tv-container').classList.remove('opacity-0', 'scale-95');
+                }, 500);
+            }, 300);
+
+            if (window.notify) window.notify(`Routing topology to ${symbol}`);
+        }
+
+        // Initial Load
+        loadChart();
+    </script>
     <!-- JS Logic -->
     <script src="/static/js/dashboard.js"></script>
 </body>

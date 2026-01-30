@@ -114,5 +114,50 @@ def analyze_user():
             'note': 'Balanced Growth'
         })
 
+@app.route('/api/monte-carlo')
+def monte_carlo():
+    """Simulate Monte Carlo path for portfolio"""
+    days = 252
+    iterations = 50
+    start_price = 100
+    
+    # Generate 50 random paths
+    paths = []
+    for _ in range(iterations):
+        path = [start_price]
+        current_price = start_price
+        for _ in range(days):
+            # 10% annual volatility, 5% annual return
+            daily_return = (0.05 / 252) + (0.1 / (252**0.5)) * random.normalvariate(0, 1)
+            current_price *= (1 + daily_return)
+            path.append(round(current_price, 2))
+        paths.append(path)
+        
+    return jsonify({
+        'paths': paths,
+        'labels': list(range(days + 1))
+    })
+
+@app.route('/api/quantum-shield', methods=['POST'])
+def quantum_shield():
+    """Simulate Post-Quantum Cryptography Encryption"""
+    data = request.json
+    payload = str(data.get('payload', ''))
+    
+    # Simulate Lattice-based encryption by obfuscating the payload
+    import base64
+    import hashlib
+    
+    # Simple 'quantum' obfuscation
+    salt = "LATTICE_SALT_256"
+    pseudo_encrypted = base64.b64encode(hashlib.sha256((payload + salt).encode()).digest()).decode()
+    
+    return jsonify({
+        'status': 'Quantum Secure',
+        'algorithm': 'Dilithium-5 / Kyber-1024',
+        'signature': f"sig_q_{pseudo_encrypted[:16]}...",
+        'timestamp': datetime.now().isoformat()
+    })
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
