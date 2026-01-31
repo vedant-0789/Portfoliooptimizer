@@ -1,2 +1,0 @@
-# ALGORHYTHM Backend Application
-

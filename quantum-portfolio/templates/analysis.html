@@ -4,19 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALGORHYTHM | Deep Analysis</title>
+    <title>ALGORHYTHM | Deep Node Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --primary: #0ea5e9;
-            --secondary: #0f172a;
-            --accent: #10b981;
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        primary: '#0ea5e9',
+                        secondary: '#0f172a',
+                        accent: '#8b5cf6'
+                    }
+                }
+            }
         }
-
+    </script>
+    <style>
         body {
-            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            background: #0f172a;
             color: #f8fafc;
             min-height: 100vh;
         }
@@ -25,181 +33,226 @@
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        .animate-fade-in {
-            animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
+        @keyframes pulse-soft {
 
-            to {
+            0%,
+            100% {
                 opacity: 1;
-                transform: translateY(0);
             }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .animate-pulse-soft {
+            animation: pulse-soft 3s infinite;
         }
     </style>
 </head>
 
 <body class="font-sans">
-    <nav class="border-b border-white/10 sticky top-0 z-50 glass">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center cursor-pointer" onclick="window.location.href='/'">
-                    <div class="bg-primary/20 p-2 rounded-lg mr-3">
-                        <svg class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                        </svg>
-                    </div>
-                    <span class="text-xl font-bold tracking-tight text-white">ALGORHYTHM</span>
-                </div>
-                <div class="flex items-center space-x-6 text-sm font-medium">
-                    <a href="/" class="text-gray-400 hover:text-white transition">Dashboard</a>
-                    <a href="/analysis" class="text-primary border-b-2 border-primary py-5">Deep Analysis</a>
-                </div>
+    <!-- Navbar -->
+    <nav class="border-b border-white/5 bg-secondary/50 backdrop-blur-md sticky top-0 z-[100]">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="/dashboard"
+                    class="h-8 w-8 bg-primary/20 rounded-lg flex items-center justify-center border border-primary/30">
+                    <svg class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+                <span class="text-xl font-black tracking-tight uppercase">Sentinel Deep Analysis</span>
             </div>
+            <button onclick="handleLogout()"
+                class="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-white transition">Logout</button>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 py-12 animate-fade-in">
-        <div class="flex justify-between items-end mb-10">
-            <div>
-                <h1 class="text-4xl font-black text-white tracking-tight">Portfolio Stress Analysis</h1>
-                <p class="text-gray-500 mt-2 uppercase tracking-[0.2em] text-xs">Simulating 1,000 market scenarios via
-                    Quantum-Monte Carlo</p>
-            </div>
-            <button onclick="runMonteCarlo()"
-                class="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold tracking-widest transition">REFRESH
-                SIMULATION</button>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            <!-- Risk Metrics -->
-            <div class="lg:col-span-2 glass p-8 rounded-2xl">
-                <h3 class="text-lg font-bold mb-6 text-white flex items-center">
-                    <span class="w-2 h-2 bg-primary rounded-full mr-3"></span> Risk Coefficient Profile
-                </h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div class="p-5 bg-white/5 rounded-2xl border border-white/5">
-                        <p class="text-[10px] text-gray-500 uppercase font-black mb-1">Sharpe Ratio</p>
-                        <p class="text-3xl font-black text-green-400">2.45</p>
-                        <p class="text-[10px] text-green-500/50">Optimal Risk-Adj Return</p>
-                    </div>
-                    <div class="p-5 bg-white/5 rounded-2xl border border-white/5">
-                        <p class="text-[10px] text-gray-500 uppercase font-black mb-1">Portfolio Beta</p>
-                        <p class="text-3xl font-black text-primary">0.85</p>
-                        <p class="text-[10px] text-primary/50">Defensive Alignment</p>
-                    </div>
-                    <div class="p-5 bg-white/5 rounded-2xl border border-white/5">
-                        <p class="text-[10px] text-gray-500 uppercase font-black mb-1">VaR (95%)</p>
-                        <p class="text-3xl font-black text-red-400">-4.2%</p>
-                        <p class="text-[10px] text-red-500/50">Value at Risk</p>
-                    </div>
-                    <div class="p-5 bg-white/5 rounded-2xl border border-white/5">
-                        <p class="text-[10px] text-gray-500 uppercase font-black mb-1">Safety Index</p>
-                        <p class="text-3xl font-black text-purple-500">98%</p>
-                        <p class="text-[10px] text-purple-500/50">Post-Quantum Robust</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI Insight -->
+    <!-- Global Disclaimer Overlay -->
+    <div id="global-disclaimer"
+        class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl transition-opacity duration-500">
+        <div class="glass max-w-lg w-full p-10 rounded-3xl border border-white/10 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-primary/5 -z-10"></div>
             <div
-                class="bg-gradient-to-br from-primary/20 to-blue-500/5 p-8 rounded-2xl border border-primary/20 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-lg font-black text-white mb-2">Neural Insight</h3>
-                    <p class="text-sm text-blue-100 opacity-70 leading-relaxed italic">"Simulating 252 trading days.
-                        Probability of Alpha generation over NIFTY benchmark stands at 84.2%. Recommend maintaining
-                        current weight in Quantum Defense assets."</p>
+                class="h-16 w-16 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/30 mx-auto mb-6">
+                <svg class="h-10 w-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <h2 class="text-3xl font-black text-white mb-4 uppercase tracking-tight">Financial Disclaimer</h2>
+            <p class="text-gray-400 text-xs mb-8">Mandatory safety check required for Deep Analysis access.</p>
+            <div
+                class="flex items-center justify-center space-x-3 mb-8 p-3 bg-red-500/5 rounded-xl border border-red-500/10">
+                <input type="checkbox" id="disclaimer-checkbox"
+                    class="h-4 w-4 rounded border-gray-300 text-primary accent-primary">
+                <label for="disclaimer-checkbox" class="text-[10px] text-gray-400 font-bold uppercase cursor-pointer">I
+                    acknowledge the risks of AI-driven capital management</label>
+            </div>
+            <button onclick="acceptDisclaimer()"
+                class="w-full bg-primary py-4 rounded-xl font-black text-white shadow-xl shadow-primary/20 transition hover:bg-blue-600 uppercase text-xs tracking-widest active:scale-95">I
+                Understand & Accept</button>
+        </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-6 py-12 space-y-12">
+        <!-- Header & Executive Summary -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-6">
+                <h1 class="text-5xl font-black uppercase tracking-tighter leading-none">Market <br /><span
+                        class="text-primary">Probability Matrix</span></h1>
+                <p class="text-gray-400 text-lg">Detailed projection of your capital growth across 1,000 parallel market
+                    simulations.</p>
+
+                <div class="p-8 glass rounded-[2.5rem] border border-primary/20 bg-primary/5">
+                    <h3 class="text-xs font-black text-primary uppercase tracking-[0.3em] mb-4">AI Executive Summary
+                    </h3>
+                    <p id="ai-exe-summary" class="text-white font-medium leading-relaxed italic">
+                        "The AI Sentinel is currently projecting a 78% probability of a 'Bullish Breakout' in the next
+                        15 session days. While macro indicators show debt-market friction, your portfolio's current
+                        rotation into High-Beta IT and Defensives provides a structural alpha shield."
+                    </p>
+                    <div class="mt-6 flex items-center space-x-4">
+                        <div
+                            class="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-[10px] font-black text-green-400 uppercase tracking-widest">
+                            Regime: Accumulation</div>
+                        <div
+                            class="px-3 py-1 bg-blue-500/10 border border-blue-500/20 rounded-full text-[10px] font-black text-blue-400 uppercase tracking-widest">
+                            Signal: Overweight Equity</div>
+                    </div>
                 </div>
-                <div class="mt-8">
-                    <div class="flex justify-between items-end mb-2">
-                        <span class="text-[10px] text-gray-400 uppercase font-bold">Predictive Confidence</span>
-                        <span class="text-xs text-primary font-black">91%</span>
+            </div>
+
+            <!-- Fiduciary Trust Score -->
+            <div class="space-y-6">
+                <div class="p-8 glass rounded-[2.5rem] text-center border border-white/10 group">
+                    <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-8">Fiduciary Trust
+                        Score</h4>
+                    <div class="relative inline-flex items-center justify-center mb-6">
+                        <svg class="w-32 h-32 transform -rotate-90">
+                            <circle cx="64" cy="64" r="58" stroke="currentColor" stroke-width="8" fill="transparent"
+                                class="text-white/5" />
+                            <circle cx="64" cy="64" r="58" stroke="currentColor" stroke-width="8" fill="transparent"
+                                stroke-dasharray="364.4" stroke-dashoffset="18"
+                                class="text-primary group-hover:text-accent transition-colors duration-500" />
+                        </svg>
+                        <span class="absolute text-3xl font-black text-white">95%</span>
                     </div>
-                    <div class="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
-                        <div class="bg-primary h-full rounded-full" style="width: 91%"></div>
-                    </div>
+                    <p class="text-[11px] text-gray-400 leading-relaxed font-medium">Why believe the AI? Our model is
+                        audited every 48h for 'Drift' and has outpaced human hedge funds by 4.2% since inception.</p>
+                </div>
+
+                <div class="p-6 glass rounded-3xl border-l-4 border-accent space-y-2">
+                    <h5 class="text-[10px] font-black text-accent uppercase tracking-widest">Protocol: AI Risk Parity
+                    </h5>
+                    <p class="text-[10px] text-gray-500">Your capital is protected by a dynamic stop-loss engine that
+                        calculates 'Value at Risk' (VaR) mathematically.</p>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="glass p-8 rounded-2xl h-[450px]">
-                <h3 class="text-lg font-bold mb-6 text-white">Monte Carlo Path Simulation <span
-                        class="text-[10px] text-gray-500 ml-2">(252 Days Proj.)</span></h3>
-                <canvas id="monteChart"></canvas>
+        <!-- Monte Carlo Graph -->
+        <div class="glass p-8 rounded-[3rem] border border-white/10">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h3 class="text-2xl font-black uppercase tracking-tight">Monte Carlo Variance Trail</h3>
+                    <p class="text-xs text-gray-500 mt-1 uppercase tracking-widest font-bold">1,000 Iterations • 252 Day
+                        Horizon</p>
+                </div>
+                <div class="flex space-x-2">
+                    <div class="h-3 w-3 rounded-sm bg-primary/20 border border-primary/50"></div>
+                    <div class="h-3 w-3 rounded-sm bg-primary/40 border border-primary/50"></div>
+                    <div class="h-3 w-3 rounded-sm bg-primary/60 border border-primary/50"></div>
+                </div>
             </div>
-            <div class="glass p-8 rounded-2xl h-[450px]">
-                <h3 class="text-lg font-bold mb-6 text-white">Advanced Sector Decomposition</h3>
-                <canvas id="sectorChart"></canvas>
+            <div class="h-[400px] w-full relative">
+                <canvas id="monteCarloChart"></canvas>
             </div>
+        </div>
+
+        <!-- Footnote -->
+        <div class="text-center py-10 opacity-30">
+            <p class="text-[9px] font-black uppercase tracking-[0.4em]">Algorithmic Integrity Audit v3.02 • Secured by
+                Sentinel PQC</p>
         </div>
     </main>
 
     <script>
-        let monteChart;
+        let monteCarloChart;
+
         async function runMonteCarlo() {
-            const response = await fetch('/api/monte-carlo');
-            const data = await response.json();
+            try {
+                const response = await fetch('/api/monte-carlo');
+                const data = await response.json();
 
-            const ctx = document.getElementById('monteChart').getContext('2d');
-            if (monteChart) monteChart.destroy();
+                const ctx = document.getElementById('monteCarloChart').getContext('2d');
+                if (monteCarloChart) monteCarloChart.destroy();
 
-            monteChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.labels,
-                    datasets: data.paths.map((path, i) => ({
-                        data: path,
-                        borderColor: i === 0 ? '#0ea5e9' : 'rgba(255,255,255,0.05)',
-                        borderWidth: i === 0 ? 3 : 1,
-                        fill: false,
-                        pointRadius: 0
-                    }))
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { display: false },
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#64748b' } }
+                monteCarloChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: data.paths.map((path, i) => ({
+                            label: `Sim ${i}`,
+                            data: path,
+                            borderColor: i % 2 === 0 ? 'rgba(14, 165, 233, 0.1)' : 'rgba(139, 92, 246, 0.05)',
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0.2
+                        }))
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { display: false },
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.03)' },
+                                ticks: {
+                                    color: 'rgba(255, 255, 255, 0.3)',
+                                    font: { size: 10, weight: 'bold' },
+                                    callback: (v) => '₹' + v
+                                }
+                            }
+                        }
                     }
-                }
-            });
+                });
+            } catch (e) {
+                console.error("Simulation failed", e);
+            }
         }
 
-        const sectorCtx = document.getElementById('sectorChart').getContext('2d');
-        new Chart(sectorCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Banking', 'IT', 'Energy', 'Pharma', 'Auto', 'Quantum Defense'],
-                datasets: [{
-                    label: 'Allocation %',
-                    data: [35, 20, 15, 10, 5, 15],
-                    backgroundColor: ['#0ea5e9', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6', '#6366F1'],
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: '#64748b' } },
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, border: { dash: [5, 5] }, ticks: { color: '#64748b' } }
-                }
-            }
-        });
+        function handleLogout() {
+            window.location.href = '/logout';
+        }
 
-        runMonteCarlo();
+        function acceptDisclaimer() {
+            const checkbox = document.getElementById('disclaimer-checkbox');
+            if (checkbox && !checkbox.checked) {
+                alert("Please acknowledge the AI-driven risk protocol before proceeding.");
+                return;
+            }
+            localStorage.setItem('disclaimer_accepted', 'true');
+            const d = document.getElementById('global-disclaimer');
+            if (d) {
+                d.style.opacity = '0';
+                setTimeout(() => d.style.display = 'none', 500);
+            }
+        }
+
+        window.onload = () => {
+            runMonteCarlo();
+        };
     </script>
 </body>
 

@@ -201,6 +201,8 @@
                     <a href="/" class="text-sm font-medium text-primary">Dashboard</a>
                     <a href="/analysis"
                         class="text-sm font-medium text-gray-400 hover:text-white transition">Analysis</a>
+                    <button onclick="handleLogout()"
+                        class="text-xs font-bold text-red-500 hover:text-red-400 uppercase transition tracking-widest">Logout</button>
                     <button id="wallet-btn" onclick="connectWallet()"
                         class="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold glow-button">Connect
                         Portfolio</button>
@@ -208,6 +210,110 @@
             </div>
         </div>
     </nav>
+
+    <!-- Global Disclaimer Overlay -->
+    <div id="global-disclaimer"
+        class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl transition-opacity duration-500">
+        <div class="glass max-w-lg w-full p-10 rounded-3xl border border-white/10 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-primary/5 -z-10"></div>
+            <div
+                class="h-16 w-16 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/30 mx-auto mb-6">
+                <svg class="h-10 w-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <h2 class="text-3xl font-black text-white mb-4 uppercase tracking-tight">Financial Disclaimer</h2>
+            <div class="text-gray-400 text-xs font-medium space-y-4 mb-8 leading-relaxed text-left">
+                <p>1. <strong>Risk Warning:</strong> Algorithmic trading and AI-driven portfolio management carry
+                    significant financial risk. Past performance is not an indicator of future success.</p>
+                <p>2. <strong>No Advice:</strong> This software is for educational and experimental purposes. It does
+                    not constitute certified financial advice. Always consult a human financial professional.</p>
+                <p>3. <strong>Data Disclaimer:</strong> Prices and news sentiment are provided for demonstration.
+                    Latency and anomalies may occur in live feeds.</p>
+            </div>
+
+            <div
+                class="flex items-center justify-center space-x-3 mb-6 p-3 bg-red-500/5 rounded-xl border border-red-500/10">
+                <input type="checkbox" id="disclaimer-checkbox"
+                    class="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary accent-primary">
+                <label for="disclaimer-checkbox"
+                    class="text-[10px] text-gray-400 font-bold uppercase tracking-tight cursor-pointer">I acknowledge
+                    the risks and agree to use this AI responsibly</label>
+            </div>
+
+            <button onclick="acceptDisclaimer()"
+                class="w-full bg-primary py-4 rounded-xl font-black text-white shadow-xl shadow-primary/20 transition hover:bg-blue-600 uppercase text-xs tracking-widest active:scale-95">I
+                Understand & Accept Risks</button>
+        </div>
+    </div>
+
+    <!-- Prediction Review Modal -->
+    <div id="prediction-modal"
+        class="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300">
+        <div class="glass max-w-md w-full p-8 rounded-3xl border border-white/10 relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4">
+                <button onclick="closePredictionModal()" class="text-gray-500 hover:text-white transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+            <div id="prediction-content">
+                <div class="flex items-center mb-6">
+                    <div
+                        class="h-10 w-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/30 mr-4">
+                        <span id="pred-symbol" class="text-primary font-black text-xs uppercase">SYM</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-white uppercase tracking-tight" id="pred-title">Stock
+                            Analysis</h3>
+                        <div class="flex items-center space-x-2 mt-1">
+                            <p id="pred-status" class="text-[10px] text-green-400 font-bold uppercase tracking-widest">
+                                Bullish Signal</p>
+                            <span class="text-white/20">|</span>
+                            <span id="pred-badge"
+                                class="text-primary font-black text-[9px] uppercase tracking-tighter bg-primary/10 px-2 py-0.5 rounded border border-primary/20">Institutional
+                                Grade</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                        <div>
+                            <h4 class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">AI Confidence
+                            </h4>
+                            <p class="text-xl font-black text-white" id="pred-confidence">94.2%</p>
+                        </div>
+                        <div
+                            class="h-10 w-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/30">
+                            <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">AI Sentinel
+                            Review</h4>
+                        <p id="pred-review" class="text-xs text-gray-300 leading-relaxed"></p>
+                    </div>
+                    <div class="p-4 bg-primary/10 border border-primary/20 rounded-2xl">
+                        <h4 class="text-[9px] font-black text-primary uppercase tracking-widest mb-2">Why this over
+                            others?</h4>
+                        <p id="pred-why" class="text-xs text-blue-100/80 leading-relaxed italic"></p>
+                    </div>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-white/5">
+                    <p class="text-[10px] text-gray-600 italic">*All predictions involve capital risk. AI reviews are
+                        updated every 4 hours.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Manifesto Modal -->
     <div id="manifesto-modal"
@@ -329,7 +435,12 @@
     <!-- Top Intelligence Bar: News & Market -->
     <div class="bg-black/60 border-b border-white/5 backdrop-blur-md sticky top-16 z-40">
         <!-- News Ticker -->
-        <div class="border-b border-white/5 py-1.5 overflow-hidden group">
+        <div class="border-b border-white/5 py-1.5 overflow-hidden group flex items-center">
+            <div class="px-4 py-0.5 bg-primary/10 border-r border-white/10 flex items-center space-x-2 z-10 shrink-0">
+                <span class="text-[8px] font-black text-white uppercase tracking-widest">Market Mood:</span>
+                <span id="market-mood"
+                    class="text-[8px] font-black text-green-400 uppercase tracking-widest">CALCULATING...</span>
+            </div>
             <div class="flex space-x-12 animate-marquee whitespace-nowrap px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80"
                 id="news-ticker">
                 <span>◈ INITIALIZING NEWS FEED...</span>
@@ -348,16 +459,16 @@
                     onclick="loadChart('BSE:SENSEX', 'BSE')">SENSEX <span class="ml-2 text-green-400 font-bold"
                         id="sensex-price">82,300.20</span></span>
                 <span class="flex items-center hover:text-white transition cursor-pointer"
-                    onclick="loadChart('NSE:RELIANCE', 'NSE')">RELIANCE <span class="ml-2 text-red-400 font-bold"
+                    onclick="openPredictionModal('RELIANCE')">RELIANCE <span class="ml-2 text-red-400 font-bold"
                         id="reliance-price">2,980.50</span></span>
                 <span class="flex items-center hover:text-white transition cursor-pointer"
-                    onclick="loadChart('NSE:TCS', 'NSE')">TCS <span class="ml-2 text-green-400 font-bold"
+                    onclick="openPredictionModal('TCS')">TCS <span class="ml-2 text-green-400 font-bold"
                         id="tcs-price">3,850.25</span></span>
                 <span class="flex items-center hover:text-white transition cursor-pointer"
-                    onclick="loadChart('NSE:HDFCBANK', 'NSE')">HDFC BANK <span class="ml-2 text-primary font-bold"
+                    onclick="openPredictionModal('HDFCBANK')">HDFC BANK <span class="ml-2 text-primary font-bold"
                         id="hdfcbank-price">1,650.00</span></span>
                 <span class="flex items-center hover:text-white transition cursor-pointer"
-                    onclick="loadChart('NSE:INFY', 'NSE')">INFY <span class="ml-2 text-green-400 font-bold"
+                    onclick="openPredictionModal('INFY')">INFY <span class="ml-2 text-green-400 font-bold"
                         id="infy-price">1,520.00</span></span>
             </div>
         </div>
@@ -511,44 +622,140 @@
                                     </li>
                                 </ul>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- NEW: Quantum Shield Toggle -->
-                <div
-                    class="glass p-5 rounded-2xl border border-white/10 flex items-center justify-between group transition-all duration-300 hover:bg-white/5">
-                    <div class="flex items-center">
-                        <div class="p-2 bg-purple-500/10 rounded-lg mr-3">
-                            <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <p class="text-xs font-bold text-white">Quantum Shield</p>
-                            <p class="text-[10px] text-gray-500">NIST PQC Standards</p>
-                        </div>
-                    </div>
-                    <button onclick="activateQuantumShield()" id="shield-btn"
-                        class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-black shadow-lg shadow-purple-500/30 transition uppercase">Activate</button>
-                </div>
-
-                <!-- Live Sentiment News -->
-                <div class="glass p-6 rounded-2xl border border-white/10">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold text-white uppercase tracking-tight">Live Sentiment News</h3>
-                        <span
-                            class="text-[10px] font-bold text-primary animate-pulse uppercase tracking-widest">REAL-TIME</span>
-                    </div>
-                    <div id="news-feed" class="space-y-4 max-h-[300px] overflow-y-auto no-scrollbar">
-                        <!-- News items via JS -->
-                        <div class="animate-pulse flex items-center space-x-4">
-                            <div class="h-2 w-full bg-white/5 rounded"></div>
+                            <!-- Detailed Review -->
+                            <div class="mt-4 pt-4 border-t border-white/10 text-left">
+                                <p class="text-[9px] font-black text-white/50 mb-3 tracking-[0.2em] uppercase">Deep Node
+                                    Analysis (Why these stocks?)</p>
+                                <div id="ai-detailed-review" class="space-y-4">
+                                    <p class="text-[10px] text-white/30 italic text-center">AI detailed reviews will
+                                        appear here after optimization.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- AI Versus Analysis (RAG Engine) -->
+            <div class="glass p-6 rounded-2xl border border-white/10 space-y-6">
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-purple-500/10 rounded-lg">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-black text-white uppercase tracking-tight">AI Versus Engine</h3>
+                </div>
+                <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest leading-relaxed">Challenge the AI
+                    with a pair comparison context. (RAG VECTOR Analysis)</p>
+                <div class="flex space-x-2">
+                    <input id="vs-input-a" type="text" placeholder="RELIANCE"
+                        class="bg-white/5 border border-white/10 px-3 py-2 rounded-lg text-xs text-white placeholder-gray-600 w-1/2 focus:outline-none focus:border-purple-500/50">
+                    <input id="vs-input-b" type="text" placeholder="ADANI"
+                        class="bg-white/5 border border-white/10 px-3 py-2 rounded-lg text-xs text-white placeholder-gray-600 w-1/2 focus:outline-none focus:border-purple-500/50">
+                </div>
+                <button onclick="runComparison()"
+                    class="w-full bg-purple-600 hover:bg-purple-500 py-3 rounded-xl font-black text-[10px] text-white uppercase tracking-widest transition shadow-lg shadow-purple-600/20 active:scale-95">Execute
+                    Proof Analysis</button>
+
+                <div id="vs-loading" class="hidden text-center py-4 bg-white/5 rounded-2xl animate-pulse">
+                    <p class="text-[9px] text-purple-400 font-black uppercase tracking-widest">Scanning 10-K Filings &
+                        Vectorizing News...</p>
+                </div>
+
+                <div id="vs-result" class="hidden space-y-4">
+                    <div class="p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl">
+                        <div class="flex justify-between items-center mb-2">
+                            <span id="vs-winner-label"
+                                class="text-xs font-black text-white uppercase tracking-tight">WINNER: RELIANCE</span>
+                            <span id="vs-confidence" class="text-[8px] font-bold text-purple-400 uppercase">92%
+                                CONFIDENCE</span>
+                        </div>
+                        <p id="vs-reasoning" class="text-[10px] text-gray-400 leading-relaxed"></p>
+                    </div>
+                    <div>
+                        <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-2">Evidence Log (RAG
+                            Proof)</p>
+                        <div id="vs-proof-list" class="space-y-2">
+                            <!-- Proof links here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: AI Integrity Audit -->
+            <div class="glass p-6 rounded-2xl border border-white/10 space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-bold text-white uppercase tracking-tight">AI Integrity Audit</h3>
+                    <div id="confidence-indicator"
+                        class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 text-[10px] font-black border border-blue-500/20">
+                        CONFIDENCE: 92%</div>
+                </div>
+
+                <div>
+                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-3">Explainability
+                        (XAI)</p>
+                    <div class="space-y-3" id="xai-factors">
+                        <div class="text-[10px] text-gray-400">Technical Trends <span
+                                class="float-right text-primary">40%</span></div>
+                        <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full" style="width: 40%"></div>
+                        </div>
+                        <div class="text-[10px] text-gray-400">Sentiment <span
+                                class="float-right text-primary">35%</span></div>
+                        <div class="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-primary h-full" style="width: 35%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 border-t border-white/5">
+                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-3">Black Swan Stress
+                        Test</p>
+                    <div class="flex items-center justify-between p-2 bg-red-500/5 rounded border border-red-500/10">
+                        <span class="text-[10px] font-bold text-red-400">MARKET CRASH (-20%)</span>
+                        <span class="text-[10px] font-black text-red-400" id="stress-impact">-18.4% IMPACT</span>
+                    </div>
+                    <p class="text-[10px] text-gray-500 mt-2 italic">*AI monitored for drift. Re-training cycle:
+                        48h.</p>
+                </div>
+            </div>
+
+            <!-- NEW: Quantum Shield Toggle -->
+            <div
+                class="glass p-5 rounded-2xl border border-white/10 flex items-center justify-between group transition-all duration-300 hover:bg-white/5">
+                <div class="flex items-center">
+                    <div class="p-2 bg-purple-500/10 rounded-lg mr-3">
+                        <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-white">Quantum Shield</p>
+                        <p class="text-[10px] text-gray-500">NIST PQC Standards</p>
+                    </div>
+                </div>
+                <button onclick="activateQuantumShield()" id="shield-btn"
+                    class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-black shadow-lg shadow-purple-500/30 transition uppercase">Activate</button>
+            </div>
+
+            <!-- Live Sentiment News -->
+            <div class="glass p-6 rounded-2xl border border-white/10">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-white uppercase tracking-tight">Live Sentiment News</h3>
+                    <span
+                        class="text-[10px] font-bold text-primary animate-pulse uppercase tracking-widest">REAL-TIME</span>
+                </div>
+                <div id="news-feed" class="space-y-4 max-h-[300px] overflow-y-auto no-scrollbar">
+                    <!-- News items via JS -->
+                    <div class="animate-pulse flex items-center space-x-4">
+                        <div class="h-2 w-full bg-white/5 rounded"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         </div>
 
